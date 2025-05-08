@@ -1,4 +1,6 @@
 
+using Infrastructure;
+
 namespace API
 {
     public class Program
@@ -6,6 +8,10 @@ namespace API
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            var configuration = builder.Configuration;
+
+            builder.Services.AddInfrastructureServices(configuration);
 
             // Add services to the container.
             builder.Services.AddAuthorization();
