@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using System;
 using Application.Contracts;
 using Infrastructure.Common.Auth;
+using Infrastructure.Services;
 
 namespace Infrastructure
 {

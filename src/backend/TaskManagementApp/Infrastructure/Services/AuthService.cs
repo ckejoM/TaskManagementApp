@@ -1,5 +1,6 @@
 ﻿using Application.Contracts;
 using Application.Dtos.Auth;
+using Infrastructure.Common.Auth;
 using Infrastructure.Data.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
@@ -12,7 +13,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Infrastructure.Common.Auth
+namespace Infrastructure.Services
 {
     public class AuthService : IAuthService
     {
@@ -41,8 +42,8 @@ namespace Infrastructure.Common.Auth
             };
 
             var result = await _userManager.CreateAsync(identityUser, command.Password);
-            
-            if(!result.Succeeded)
+
+            if (!result.Succeeded)
             {
                 throw new Exception("Registration failed");
             }
@@ -57,11 +58,11 @@ namespace Infrastructure.Common.Auth
             if (user == null)
             {
                 throw new Exception("Invalid email or password");
-            }    
+            }
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, command.Password, false);
 
-            if(!result.Succeeded) 
+            if (!result.Succeeded)
             {
                 throw new Exception("Invalid email or password");
             }
@@ -83,7 +84,7 @@ namespace Infrastructure.Common.Auth
             var expiry = DateTime.UtcNow.AddHours(_jwtOptions.Expiry);
 
             var token = new JwtSecurityToken(
-                issuer: _jwtOptions.Issuer, 
+                issuer: _jwtOptions.Issuer,
                 audience: _jwtOptions.Audience,
                 claims: claims,
                 expires: expiry,
