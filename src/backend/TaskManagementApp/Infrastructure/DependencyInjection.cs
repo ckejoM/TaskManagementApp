@@ -19,6 +19,7 @@ namespace Infrastructure
             services.ConfigureJwtOptions(configuration);
             services.AddIdentity();
 
+            services.AddScoped<ICurrentUserService, CurrentUserService>();
             services.AddScoped<IAuthService, AuthService>();
 
             return services;
