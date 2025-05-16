@@ -54,7 +54,6 @@ namespace Infrastructure.Services
             var userId = _currentUserService.GetCurrentUserId();
             var projects = await _context.Projects
                 .AsNoTracking()
-                .Where(p => p.IsDeleted == false && p.CreatedBy == userId)
                 .ToListAsync();
 
             return projects.Select(ProjectDto.FromEntity).ToList();

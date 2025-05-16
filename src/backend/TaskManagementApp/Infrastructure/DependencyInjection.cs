@@ -8,6 +8,9 @@ using System;
 using Application.Contracts;
 using Infrastructure.Common.Auth;
 using Infrastructure.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace Infrastructure
 {
@@ -18,6 +21,7 @@ namespace Infrastructure
             services.AddDbContext(configuration);
             services.ConfigureJwtOptions(configuration);
             services.AddIdentity();
+            services.ConfigureAuthentication(configuration);
 
             services.AddScoped<ICurrentUserService, CurrentUserService>();
             services.AddScoped<IAuthService, AuthService>();
@@ -51,6 +55,30 @@ namespace Infrastructure
         private static void ConfigureJwtOptions(this IServiceCollection services, IConfiguration configuration)
         {
             services.Configure<JwtOptions>(configuration.GetSection("Jwt"));
+        }
+
+        private static void ConfigureAuthentication(this IServiceCollection services, IConfiguration configuration)
+        {
+            var jwtOptions = configuration.GetSection("Jwt").Get<JwtOptions>();
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtOptions.Issuer,
+                    ValidAudience = jwtOptions.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key))
+                };
+            });
         }
     }
 }

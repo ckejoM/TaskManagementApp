@@ -80,7 +80,7 @@ namespace Infrastructure.Data
                 }
             }
 
-            return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+            return base.SaveChangesAsync(cancellationToken);
         }
     }
 }
