@@ -21,6 +21,7 @@ namespace Infrastructure
 
             services.AddScoped<ICurrentUserService, CurrentUserService>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IProjectService, ProjectService>();
 
             return services;
         }

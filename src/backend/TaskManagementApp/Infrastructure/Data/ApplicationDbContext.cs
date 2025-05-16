@@ -1,9 +1,12 @@
-﻿using Domain.Common;
+﻿using Application.Contracts;
+using Domain.Common;
 using Domain.Entities;
 using Infrastructure.Data.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,9 +19,12 @@ namespace Infrastructure.Data
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityRole, string>
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
-        {
+        private readonly ICurrentUserService _currentUserService;
 
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options,
+            ICurrentUserService currentUserService) : base(options)
+        {
+            _currentUserService = currentUserService;
         }
 
         public DbSet<Project> Projects { get; set; }
@@ -26,51 +32,46 @@ namespace Infrastructure.Data
         public DbSet<Category> Categories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-
+        {          
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
-            var baseEntityType = typeof(BaseEntity);
-            var dbSetProperties = GetType()
-                .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(p => p.PropertyType.IsGenericType &&
-                            p.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>) &&
-                            baseEntityType.IsAssignableFrom(p.PropertyType.GetGenericArguments()[0]));
-
-            foreach (var dbSetProperty in dbSetProperties)
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
-                var entityType = dbSetProperty.PropertyType.GetGenericArguments()[0];
+                if (entityType.ClrType.IsAssignableTo(typeof(BaseEntity)))
+                {
+                    var parameter = Expression.Parameter(entityType.ClrType, "e");
+                    var body = Expression.Not(
+                        Expression.Property(parameter, nameof(BaseEntity.IsDeleted)));
+                    var lambda = Expression.Lambda(body, parameter);
 
-                // Build HasQueryFilter expression: e => !e.IsDeleted
-                var parameter = Expression.Parameter(entityType, "e");
-                var isDeletedProperty = Expression.Property(parameter, nameof(BaseEntity.IsDeleted));
-                var notDeleted = Expression.IsFalse(isDeletedProperty);
-                var lambda = Expression.Lambda(notDeleted, parameter);
+                    entityType.SetQueryFilter(lambda);
+                }
 
-                // Apply HasQueryFilter
-                modelBuilder.Entity(entityType).HasQueryFilter(lambda);
-
-                // Apply RowVersion
-                modelBuilder.Entity(entityType).Property(nameof(BaseEntity.RowVersion)).IsRowVersion();
+                var rowVersionProperty = entityType.FindProperty(nameof(BaseEntity.RowVersion));
+                if (rowVersionProperty != null)
+                {
+                    rowVersionProperty.ValueGenerated = ValueGenerated.OnAddOrUpdate;
+                    rowVersionProperty.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
+                    rowVersionProperty.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+                }
             }
 
-            modelBuilder.Ignore<BaseEntity>();
+            base.OnModelCreating(modelBuilder);
         }
 
-        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             foreach (var entry in ChangeTracker.Entries<BaseEntity>())
             {
                 if (entry.State == EntityState.Added)
                 {
                     entry.Entity.CreatedOn = DateTime.UtcNow;
-                    entry.Entity.CreatedBy = null; // TODO: Add current user
+                    entry.Entity.CreatedBy = _currentUserService.GetCurrentUserId();
                 }
                 else if (entry.State == EntityState.Modified)
                 {
                     entry.Entity.ModifiedOn = DateTime.UtcNow;
-                    entry.Entity.ModifiedBy = null; // TODO: Add current user
+                    entry.Entity.ModifiedBy = _currentUserService.GetCurrentUserId();
                 }
 
                 if (entry.Entity.IsDeleted)

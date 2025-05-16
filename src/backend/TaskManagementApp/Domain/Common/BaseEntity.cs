@@ -14,6 +14,6 @@ namespace Domain.Common
         public DateTime? ModifiedOn { get; set; }
         public Guid? ModifiedBy { get; set; }
         public bool IsDeleted { get; set; }
-        public byte[] RowVersion { get; set; } = Array.Empty<byte>();
+        public byte[] RowVersion { get; set; }
     }
 }
