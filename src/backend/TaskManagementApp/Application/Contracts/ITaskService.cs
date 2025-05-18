@@ -1,4 +1,5 @@
-﻿using Application.Dtos.Task;
+﻿using Application.Common;
+using Application.Dtos.Task;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +10,10 @@ namespace Application.Contracts
 {
     public interface ITaskService
     {
-        Task<TaskDto> CreateAsync(CreateTaskCommand command);
-        Task<TaskDto> GetByIdAsync(Guid id);
-        Task<List<TaskDto>> GetAllAsync();
-        Task<TaskDto> UpdateAsync(Guid id, UpdateTaskCommand command);
-        Task DeleteAsync(Guid id);
+        Task<Result<TaskDto>> CreateAsync(CreateTaskCommand command);
+        Task<Result<TaskDto>> GetByIdAsync(Guid id);
+        Task<Result<List<TaskDto>>> GetAllAsync();
+        Task<Result<TaskDto>> UpdateAsync(Guid id, UpdateTaskCommand command);
+        Task<Result<Guid>> DeleteAsync(Guid id);
     }
 }

@@ -1,4 +1,5 @@
-﻿using Application.Contracts;
+﻿using Application.Common;
+using Application.Contracts;
 using Application.Dtos.Task;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -21,14 +22,14 @@ namespace Infrastructure.Services
             _context = context;
         }
 
-        public async Task<TaskDto> CreateAsync(CreateTaskCommand command)
+        public async Task<Result<TaskDto>> CreateAsync(CreateTaskCommand command)
         {
             var project = await _context.Projects
                 .FirstOrDefaultAsync(p => p.Id == command.ProjectId && !p.IsDeleted);
 
             if(project == null)
             {
-                throw new Exception("Project not found or not owned by user");
+                return Result<TaskDto>.Failure("Project not found or not owned by user");
             }
             if (command.CategoryId.HasValue)
             {
@@ -37,7 +38,7 @@ namespace Infrastructure.Services
 
                 if(category == null)
                 {
-                    throw new Exception("Category not found or not owned by user");
+                    return Result<TaskDto>.Failure("Category not found or not owned by user");
                 }
             }
 
@@ -54,62 +55,89 @@ namespace Infrastructure.Services
             _context.Tasks.Add(task);
             await _context.SaveChangesAsync();
 
-            return TaskDto.FromEntity(task);
+            return Result<TaskDto>.Success(TaskDto.FromEntity(task));
         }
 
-        public async Task DeleteAsync(Guid id)
+        public async Task<Result<Guid>> DeleteAsync(Guid id)
         {
             var task = await _context.Tasks
-            .FirstOrDefaultAsync(t => t.Id == id && !t.IsDeleted)
-            ?? throw new Exception("Task not found");
+            .FirstOrDefaultAsync(t => t.Id == id && !t.IsDeleted);
+
+            if(task is null)
+            {
+                return Result<Guid>.Failure("Task not found");
+            }
 
             task.IsDeleted = true;
             task.ModifiedBy = _currentUserService.GetCurrentUserId();
             task.ModifiedOn = DateTime.UtcNow;
+
+            return Result<Guid>.Success(id);
         }
 
-        public async Task<List<TaskDto>> GetAllAsync()
+        public async Task<Result<List<TaskDto>>> GetAllAsync()
         {
             var tasks = await _context.Tasks
             .AsNoTracking()
             .Where(t => !t.IsDeleted)
             .ToListAsync();
 
-            return tasks.Select(TaskDto.FromEntity).ToList();
+            if(tasks is null)
+            {
+                return Result<List<TaskDto>>.Failure("Tasks not found");
+            }
+
+            return Result<List<TaskDto>>.Success(tasks.Select(TaskDto.FromEntity).ToList());
         }
 
-        public async Task<TaskDto> GetByIdAsync(Guid id)
+        public async Task<Result<TaskDto>> GetByIdAsync(Guid id)
         {
             var task = await _context.Tasks
                 .AsNoTracking()
-                .FirstOrDefaultAsync(t => t.Id == id && !t.IsDeleted)
-                ?? throw new Exception("Task not found");
+                .FirstOrDefaultAsync(t => t.Id == id && !t.IsDeleted);
 
-            return TaskDto.FromEntity(task);
+            if(task is null)
+            {
+                return Result<TaskDto>.Failure("Task not found");
+            }
+
+            return Result<TaskDto>.Success(TaskDto.FromEntity(task));
         }
 
-        public async Task<TaskDto> UpdateAsync(Guid id, UpdateTaskCommand command)
+        public async Task<Result<TaskDto>> UpdateAsync(Guid id, UpdateTaskCommand command)
         {
             var task = await _context.Tasks
-            .FirstOrDefaultAsync(t => t.Id == id && !t.IsDeleted)
-            ?? throw new Exception("Task not found");
+            .FirstOrDefaultAsync(t => t.Id == id && !t.IsDeleted);
+
+            if(task is null)
+            {
+                return Result<TaskDto>.Failure("Task not found");
+            }
 
             if(!task.RowVersion.SequenceEqual(command.RowVersion))
             {
-                throw new Exception("There were changes on Task, please refresh and try again.");
+                return Result<TaskDto>.Failure("There were changes on Task, please refresh and try again.");
             }
 
             // Validate ProjectId
             var project = await _context.Projects
-                .FirstOrDefaultAsync(p => p.Id == command.ProjectId && !p.IsDeleted)
-                ?? throw new Exception("Project not found or not owned by user");
+                .FirstOrDefaultAsync(p => p.Id == command.ProjectId && !p.IsDeleted);
+
+            if(project == null)
+            {
+                return Result<TaskDto>.Failure("Project not found or not owned by user");
+            }
 
             // Validate CategoryId (if provided)
             if (command.CategoryId.HasValue)
             {
                 var category = await _context.Categories
-                    .FirstOrDefaultAsync(c => c.Id == command.CategoryId && !c.IsDeleted)
-                    ?? throw new Exception("Category not found or not owned by user");
+                    .FirstOrDefaultAsync(c => c.Id == command.CategoryId && !c.IsDeleted);
+
+                if(category == null)
+                {
+                    return Result<TaskDto>.Failure("Category not found or not owned by user");
+                }
             }
 
             task.Title = command.Title;
@@ -128,7 +156,7 @@ namespace Infrastructure.Services
                 throw new Exception("Task update failed due to concurrent changes. Please refresh and try again.");
             }
 
-            return TaskDto.FromEntity(task);
+            return Result<TaskDto>.Success(TaskDto.FromEntity(task));
         }
     }
 }

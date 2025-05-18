@@ -19,138 +19,138 @@ namespace API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateTaskRequest request)
         {
-            try
+            var command = new CreateTaskCommand
             {
-                var command = new CreateTaskCommand
-                {
-                    Title = request.Title,
-                    Description = request.Description,
-                    ProjectId = request.ProjectId,
-                    CategoryId = request.CategoryId,
-                };
-                var result = await _taskService.CreateAsync(command);
-                var response = new TaskResponse
-                {
-                    Id = result.Id,
-                    Title = result.Title,
-                    Description = result.Description,
-                    ProjectId = result.ProjectId,
-                    CategoryId = result.CategoryId,
-                    CreatedBy = result.CreatedBy,
-                    CreatedAt = result.CreatedAt,
-                    ModifiedBy = result.ModifiedBy,
-                    ModifiedAt = result.ModifiedAt,
-                    RowVersion = result.RowVersion
-                };
-                return CreatedAtAction(nameof(GetById), new { id = result.Id }, response);
-            }
-            catch (Exception ex)
+                Title = request.Title,
+                Description = request.Description,
+                ProjectId = request.ProjectId,
+                CategoryId = request.CategoryId,
+            };
+            var result = await _taskService.CreateAsync(command);
+
+            if (!result.IsSuccess)
             {
-                return BadRequest(new { Error = ex.Message });
+                return BadRequest(new { result.Errors });
             }
+
+            var resultValue = result.Value;
+
+            var response = new TaskResponse
+                {
+                    Id = resultValue.Id,
+                    Title = resultValue.Title,
+                    Description = resultValue.Description,
+                    ProjectId = resultValue.ProjectId,
+                    CategoryId = resultValue.CategoryId,
+                    CreatedBy = resultValue.CreatedBy,
+                    CreatedAt = resultValue.CreatedAt,
+                    ModifiedBy = resultValue.ModifiedBy,
+                    ModifiedAt = resultValue.ModifiedAt,
+                    RowVersion = resultValue.RowVersion
+                };
+
+            return CreatedAtAction(nameof(GetById), new { id = resultValue.Id }, response);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            try
+            var result = await _taskService.GetByIdAsync(id);
+
+            if (!result.IsSuccess)
             {
-                var result = await _taskService.GetByIdAsync(id);
-                var response = new TaskResponse
-                {
-                    Id = result.Id,
-                    Title = result.Title,
-                    Description = result.Description,
-                    ProjectId = result.ProjectId,
-                    CategoryId = result.CategoryId,
-                    CreatedBy = result.CreatedBy,
-                    CreatedAt = result.CreatedAt,
-                    ModifiedBy = result.ModifiedBy,
-                    ModifiedAt = result.ModifiedAt,
-                    RowVersion = result.RowVersion
-                };
-                return Ok(response);
+                return BadRequest(new { result.Errors });
             }
-            catch (Exception ex)
+
+            var response = new TaskResponse
             {
-                return NotFound(new { Error = ex.Message });
-            }
+                Id = result.Value.Id,
+                Title = result.Value.Title,
+                Description = result.Value.Description,
+                ProjectId = result.Value.ProjectId,
+                CategoryId = result.Value.CategoryId,
+                CreatedBy = result.Value.CreatedBy,
+                CreatedAt = result.Value.CreatedAt,
+                ModifiedBy = result.Value.ModifiedBy,
+                ModifiedAt = result.Value.ModifiedAt,
+                RowVersion = result.Value.RowVersion
+            };
+
+            return Ok(response);
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            try
+            var result = await _taskService.GetAllAsync();
+
+            if(!result.IsSuccess)
             {
-                var results = await _taskService.GetAllAsync();
-                var response = results.Select(r => new TaskResponse
-                {
-                    Id = r.Id,
-                    Title = r.Title,
-                    Description = r.Description,
-                    ProjectId = r.ProjectId,
-                    CategoryId = r.CategoryId,
-                    CreatedBy = r.CreatedBy,
-                    CreatedAt = r.CreatedAt,
-                    ModifiedBy = r.ModifiedBy,
-                    ModifiedAt = r.ModifiedAt,
-                    RowVersion = r.RowVersion
-                });
-                return Ok(response);
+                return BadRequest(new { result.Errors });
             }
-            catch (Exception ex)
+            
+            var response = result.Value.Select(r => new TaskResponse
             {
-                return BadRequest(new { Error = ex.Message });
-            }
+                Id = r.Id,
+                Title = r.Title,
+                Description = r.Description,
+                ProjectId = r.ProjectId,
+                CategoryId = r.CategoryId,
+                CreatedBy = r.CreatedBy,
+                CreatedAt = r.CreatedAt,
+                ModifiedBy = r.ModifiedBy,
+                ModifiedAt = r.ModifiedAt,
+                RowVersion = r.RowVersion
+            });
+
+            return Ok(response);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateTaskRequest request)
         {
-            try
+            var command = new UpdateTaskCommand
             {
-                var command = new UpdateTaskCommand
-                {
-                    Title = request.Title,
-                    Description = request.Description,
-                    ProjectId = request.ProjectId,
-                    CategoryId = request.CategoryId,
-                    RowVersion = request.RowVersion
-                };
-                var result = await _taskService.UpdateAsync(id, command);
-                var response = new TaskResponse
-                {
-                    Id = result.Id,
-                    Title = result.Title,
-                    Description = result.Description,
-                    ProjectId = result.ProjectId,
-                    CategoryId = result.CategoryId,
-                    CreatedBy = result.CreatedBy,
-                    CreatedAt = result.CreatedAt,
-                    ModifiedBy = result.ModifiedBy,
-                    ModifiedAt = result.ModifiedAt,
-                    RowVersion = result.RowVersion
-                };
-                return Ok(response);
-            }
-            catch (Exception ex)
+                Title = request.Title,
+                Description = request.Description,
+                ProjectId = request.ProjectId,
+                CategoryId = request.CategoryId,
+                RowVersion = request.RowVersion
+            };
+            var result = await _taskService.UpdateAsync(id, command);
+
+            if(!result.IsSuccess)
             {
-                return BadRequest(new { Error = ex.Message });
+                return BadRequest(new { result.Errors });
             }
+
+            var response = new TaskResponse
+            {
+                Id = result.Value.Id,
+                Title = result.Value.Title,
+                Description = result.Value.Description,
+                ProjectId = result.Value.ProjectId,
+                CategoryId = result.Value.CategoryId,
+                CreatedBy = result.Value.CreatedBy,
+                CreatedAt = result.Value.CreatedAt,
+                ModifiedBy = result.Value.ModifiedBy,
+                ModifiedAt = result.Value.ModifiedAt,
+                RowVersion = result.Value.RowVersion
+            };
+            return Ok(response);            
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            try
+            var result = await _taskService.DeleteAsync(id);
+
+            if (!result.IsSuccess)
             {
-                await _taskService.DeleteAsync(id);
-                return NoContent();
+                return BadRequest(new { result.Errors });
             }
-            catch (Exception ex)
-            {
-                return NotFound(new { Error = ex.Message });
-            }
+
+            return NoContent();            
         }
     }
 }
