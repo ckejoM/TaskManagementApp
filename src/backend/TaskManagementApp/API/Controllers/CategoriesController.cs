@@ -56,7 +56,8 @@ namespace API.Controllers
                     CreatedBy = result.CreatedBy,
                     CreatedAt = result.CreatedAt,
                     ModifiedBy = result.ModifiedBy,
-                    ModifiedAt = result.ModifiedAt
+                    ModifiedAt = result.ModifiedAt,
+                    RowVersion = result.RowVersion
                 };
                 return Ok(response);
             }
@@ -79,7 +80,8 @@ namespace API.Controllers
                     CreatedBy = r.CreatedBy,
                     CreatedAt = r.CreatedAt,
                     ModifiedBy = r.ModifiedBy,
-                    ModifiedAt = r.ModifiedAt
+                    ModifiedAt = r.ModifiedAt,
+                    RowVersion = r.RowVersion
                 });
                 return Ok(response);
             }
@@ -96,7 +98,8 @@ namespace API.Controllers
             {
                 var command = new UpdateCategoryCommand
                 {
-                    Name = request.Name
+                    Name = request.Name,
+                    RowVersion = request.RowVersion
                 };
                 var result = await _categoryService.UpdateAsync(id, command);
                 var response = new CategoryResponse
@@ -106,7 +109,8 @@ namespace API.Controllers
                     CreatedBy = result.CreatedBy,
                     CreatedAt = result.CreatedAt,
                     ModifiedBy = result.ModifiedBy,
-                    ModifiedAt = result.ModifiedAt
+                    ModifiedAt = result.ModifiedAt,
+                    RowVersion = result.RowVersion
                 };
                 return Ok(response);
             }

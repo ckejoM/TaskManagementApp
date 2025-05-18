@@ -66,8 +66,6 @@ namespace Infrastructure.Services
             task.IsDeleted = true;
             task.ModifiedBy = _currentUserService.GetCurrentUserId();
             task.ModifiedOn = DateTime.UtcNow;
-
-            await _context.SaveChangesAsync();
         }
 
         public async Task<List<TaskDto>> GetAllAsync()
@@ -96,6 +94,11 @@ namespace Infrastructure.Services
             .FirstOrDefaultAsync(t => t.Id == id && !t.IsDeleted)
             ?? throw new Exception("Task not found");
 
+            if(!task.RowVersion.SequenceEqual(command.RowVersion))
+            {
+                throw new Exception("There were changes on Task, please refresh and try again.");
+            }
+
             // Validate ProjectId
             var project = await _context.Projects
                 .FirstOrDefaultAsync(p => p.Id == command.ProjectId && !p.IsDeleted)
@@ -116,7 +119,14 @@ namespace Infrastructure.Services
             task.ModifiedBy = _currentUserService.GetCurrentUserId();
             task.ModifiedOn = DateTime.UtcNow;
 
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw new Exception("Task update failed due to concurrent changes. Please refresh and try again.");
+            }
 
             return TaskDto.FromEntity(task);
         }

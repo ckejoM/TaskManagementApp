@@ -71,21 +71,30 @@ namespace Infrastructure.Services
 
         public async Task<CategoryDto> UpdateAsync(Guid id, UpdateCategoryCommand command)
         {
-            var userId = _currentUserService.GetCurrentUserId()
-                ?? throw new Exception("User not authenticated");
-
             var category = await _context.Categories
-                .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted && c.CreatedBy == userId)
+                .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted)
                 ?? throw new Exception("Category not found");
+
+            if (!category.RowVersion.SequenceEqual(command.RowVersion))
+            {
+                throw new Exception("There were changes on Category, please refresh and try again.");
+            }
 
             if (string.IsNullOrWhiteSpace(command.Name))
                 throw new Exception("Category name is required");
 
             category.Name = command.Name;
-            category.ModifiedBy = userId;
+            category.ModifiedBy = _currentUserService.GetCurrentUserId();
             category.ModifiedOn = DateTime.UtcNow;
 
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw new Exception("Category update failed due to concurrent changes. Please refresh and try again.");
+            }
 
             return CategoryDto.FromEntity(category);
         }
@@ -102,8 +111,6 @@ namespace Infrastructure.Services
             category.IsDeleted = true;
             category.ModifiedBy = userId;
             category.ModifiedOn = DateTime.UtcNow;
-
-            await _context.SaveChangesAsync();
         }
     }
 }

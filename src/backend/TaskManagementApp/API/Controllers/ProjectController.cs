@@ -63,7 +63,8 @@ namespace API.Controllers
                     CreatedBy = result.CreatedBy,
                     CreatedOn = result.CreatedOn,
                     ModifiedBy = result.ModifiedBy,
-                    ModifiedOn = result.ModifiedOn
+                    ModifiedOn = result.ModifiedOn,
+                    RowVersion = result.RowVersion
                 };
 
                 return Ok(response);
@@ -89,7 +90,8 @@ namespace API.Controllers
                     CreatedBy = r.CreatedBy,
                     CreatedOn = r.CreatedOn,
                     ModifiedBy = r.ModifiedBy,
-                    ModifiedOn = r.ModifiedOn
+                    ModifiedOn = r.ModifiedOn,
+                    RowVersion = r.RowVersion
                 });
 
                 return Ok(response);
@@ -108,7 +110,8 @@ namespace API.Controllers
                 var command = new UpdateProjectCommand
                 {
                     Name = request.Name,
-                    Description = request.Description
+                    Description = request.Description,
+                    RowVersion = request.RowVersion
                 };
 
                 var result = await _projectService.UpdateAsync(id, command);
@@ -121,7 +124,8 @@ namespace API.Controllers
                     CreatedBy = result.CreatedBy,
                     CreatedOn = result.CreatedOn,
                     ModifiedBy = result.ModifiedBy,
-                    ModifiedOn = result.ModifiedOn
+                    ModifiedOn = result.ModifiedOn,
+                    RowVersion = result.RowVersion
                 };
 
                 return Ok(response);

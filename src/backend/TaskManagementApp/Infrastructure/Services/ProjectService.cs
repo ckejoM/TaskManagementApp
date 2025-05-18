@@ -65,12 +65,24 @@ namespace Infrastructure.Services
                 .FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted)
                 ?? throw new Exception("Project not found");
 
+            if (!project.RowVersion.SequenceEqual(command.RowVersion))
+            {
+                throw new Exception("There were changes on Project, please refresh and try again.");
+            }
+
             project.Name = command.Name;
             project.Description = command.Description;
             project.ModifiedBy = _currentUserService.GetCurrentUserId();
             project.ModifiedOn = DateTime.UtcNow;
 
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw new Exception("Project update failed due to concurrent changes. Please refresh and try again.");
+            }
 
             return ProjectDto.FromEntity(project);
         }
@@ -84,8 +96,6 @@ namespace Infrastructure.Services
             project.IsDeleted = true;
             project.ModifiedBy = _currentUserService.GetCurrentUserId();
             project.ModifiedOn = DateTime.UtcNow;
-
-            await _context.SaveChangesAsync();
         }
     }
 }

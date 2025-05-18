@@ -26,7 +26,7 @@ namespace API.Controllers
                     Title = request.Title,
                     Description = request.Description,
                     ProjectId = request.ProjectId,
-                    CategoryId = request.CategoryId
+                    CategoryId = request.CategoryId,
                 };
                 var result = await _taskService.CreateAsync(command);
                 var response = new TaskResponse
@@ -39,7 +39,8 @@ namespace API.Controllers
                     CreatedBy = result.CreatedBy,
                     CreatedAt = result.CreatedAt,
                     ModifiedBy = result.ModifiedBy,
-                    ModifiedAt = result.ModifiedAt
+                    ModifiedAt = result.ModifiedAt,
+                    RowVersion = result.RowVersion
                 };
                 return CreatedAtAction(nameof(GetById), new { id = result.Id }, response);
             }
@@ -65,7 +66,8 @@ namespace API.Controllers
                     CreatedBy = result.CreatedBy,
                     CreatedAt = result.CreatedAt,
                     ModifiedBy = result.ModifiedBy,
-                    ModifiedAt = result.ModifiedAt
+                    ModifiedAt = result.ModifiedAt,
+                    RowVersion = result.RowVersion
                 };
                 return Ok(response);
             }
@@ -91,7 +93,8 @@ namespace API.Controllers
                     CreatedBy = r.CreatedBy,
                     CreatedAt = r.CreatedAt,
                     ModifiedBy = r.ModifiedBy,
-                    ModifiedAt = r.ModifiedAt
+                    ModifiedAt = r.ModifiedAt,
+                    RowVersion = r.RowVersion
                 });
                 return Ok(response);
             }
@@ -111,7 +114,8 @@ namespace API.Controllers
                     Title = request.Title,
                     Description = request.Description,
                     ProjectId = request.ProjectId,
-                    CategoryId = request.CategoryId
+                    CategoryId = request.CategoryId,
+                    RowVersion = request.RowVersion
                 };
                 var result = await _taskService.UpdateAsync(id, command);
                 var response = new TaskResponse
@@ -124,7 +128,8 @@ namespace API.Controllers
                     CreatedBy = result.CreatedBy,
                     CreatedAt = result.CreatedAt,
                     ModifiedBy = result.ModifiedBy,
-                    ModifiedAt = result.ModifiedAt
+                    ModifiedAt = result.ModifiedAt,
+                    RowVersion = result.RowVersion
                 };
                 return Ok(response);
             }

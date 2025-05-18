@@ -8,6 +8,7 @@
         public DateTime CreatedAt { get; set; }
         public Guid? ModifiedBy { get; set; }
         public DateTime? ModifiedAt { get; set; }
+        public byte[] RowVersion { get; set; } = null!;
 
         public static CategoryDto FromEntity(Domain.Entities.Category category)
         {
@@ -18,7 +19,8 @@
                 CreatedBy = category.CreatedBy,
                 CreatedAt = category.CreatedOn,
                 ModifiedBy = category.ModifiedBy,
-                ModifiedAt = category.ModifiedOn
+                ModifiedAt = category.ModifiedOn,
+                RowVersion = category.RowVersion,
             };
         }
     }

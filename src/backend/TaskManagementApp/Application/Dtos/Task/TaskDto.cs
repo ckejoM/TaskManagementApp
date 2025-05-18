@@ -17,6 +17,7 @@ namespace Application.Dtos.Task
         public DateTime CreatedAt { get; set; }
         public Guid? ModifiedBy { get; set; }
         public DateTime? ModifiedAt { get; set; }
+        public byte[] RowVersion { get; set; } = null!;
 
         public static TaskDto FromEntity(Domain.Entities.Task task)
         {
@@ -30,7 +31,8 @@ namespace Application.Dtos.Task
                 CreatedBy = task.CreatedBy,
                 CreatedAt = task.CreatedOn,
                 ModifiedBy = task.ModifiedBy,
-                ModifiedAt = task.ModifiedOn
+                ModifiedAt = task.ModifiedOn,
+                RowVersion = task.RowVersion,
             };
         }
     }
