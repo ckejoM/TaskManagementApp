@@ -1,4 +1,5 @@
-﻿using Application.Contracts;
+﻿using Application.Common;
+using Application.Contracts;
 using Application.Dtos.Category;
 using Domain.Entities;
 using Infrastructure.Data;
@@ -22,70 +23,76 @@ namespace Infrastructure.Services
             _currentUserService = currentUserService;
         }
 
-        public async Task<CategoryDto> CreateAsync(CreateCategoryCommand command)
+        public async Task<Result<CategoryDto>> CreateAsync(CreateCategoryCommand command)
         {
-            var userId = _currentUserService.GetCurrentUserId()
-                ?? throw new Exception("User not authenticated");
-
+            
             if (string.IsNullOrWhiteSpace(command.Name))
-                throw new Exception("Category name is required");
+            {
+                return Result<CategoryDto>.Failure("Category name is required");
+            }
 
             var category = new Category
             {
                 Name = command.Name,
-                CreatedBy = userId,
                 CreatedOn = DateTime.UtcNow
             };
 
             _context.Categories.Add(category);
             await _context.SaveChangesAsync();
 
-            return CategoryDto.FromEntity(category);
+            return Result<CategoryDto>.Success(CategoryDto.FromEntity(category));
         }
 
-        public async Task<CategoryDto> GetByIdAsync(Guid id)
+        public async Task<Result<CategoryDto>> GetByIdAsync(Guid id)
         {
-            var userId = _currentUserService.GetCurrentUserId()
-                ?? throw new Exception("User not authenticated");
-
             var category = await _context.Categories
                 .AsNoTracking()
-                .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted)
-                ?? throw new Exception("Category not found");
+                .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
 
-            return CategoryDto.FromEntity(category);
+            if(category is null)
+            {
+                return Result<CategoryDto>.Failure("Category not found");
+            }
+
+            return Result<CategoryDto>.Success(CategoryDto.FromEntity(category));
         }
 
-        public async Task<List<CategoryDto>> GetAllAsync()
+        public async Task<Result<List<CategoryDto>>> GetAllAsync()
         {
-            var userId = _currentUserService.GetCurrentUserId()
-                ?? throw new Exception("User not authenticated");
-
             var categories = await _context.Categories
                 .AsNoTracking()
                 .Where(c => !c.IsDeleted)
                 .ToListAsync();
 
-            return categories.Select(CategoryDto.FromEntity).ToList();
+            if(categories is null)
+            {
+                return Result<List<CategoryDto>>.Failure("Categories not found");
+            }
+
+            return Result<List<CategoryDto>>.Success(categories.Select(CategoryDto.FromEntity).ToList());
         }
 
-        public async Task<CategoryDto> UpdateAsync(Guid id, UpdateCategoryCommand command)
+        public async Task<Result<CategoryDto>> UpdateAsync(Guid id, UpdateCategoryCommand command)
         {
             var category = await _context.Categories
-                .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted)
-                ?? throw new Exception("Category not found");
+                .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
+
+            if(category is null)
+            {
+                return Result<CategoryDto>.Failure("Category not found");
+            }
 
             if (!category.RowVersion.SequenceEqual(command.RowVersion))
             {
-                throw new Exception("There were changes on Category, please refresh and try again.");
+                return Result<CategoryDto>.Failure("There were changes on Category, please refresh and try again.");
             }
 
             if (string.IsNullOrWhiteSpace(command.Name))
-                throw new Exception("Category name is required");
+            {
+                return Result<CategoryDto>.Failure("Category name is required");
+            }
 
             category.Name = command.Name;
-            category.ModifiedBy = _currentUserService.GetCurrentUserId();
-            category.ModifiedOn = DateTime.UtcNow;
 
             try
             {
@@ -96,21 +103,25 @@ namespace Infrastructure.Services
                 throw new Exception("Category update failed due to concurrent changes. Please refresh and try again.");
             }
 
-            return CategoryDto.FromEntity(category);
+            return Result<CategoryDto>.Success(CategoryDto.FromEntity(category));
         }
 
-        public async System.Threading.Tasks.Task DeleteAsync(Guid id)
+        public async System.Threading.Tasks.Task<Result<Guid>> DeleteAsync(Guid id)
         {
-            var userId = _currentUserService.GetCurrentUserId()
-                ?? throw new Exception("User not authenticated");
-
             var category = await _context.Categories
-                .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted && c.CreatedBy == userId)
-                ?? throw new Exception("Category not found");
+                .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
+
+            if(category is null)
+            {
+                return Result<Guid>.Failure("Category not found");
+            }
 
             category.IsDeleted = true;
-            category.ModifiedBy = userId;
             category.ModifiedOn = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            return Result<Guid>.Success(id);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Application.Contracts;
+﻿using Application.Common;
+using Application.Contracts;
 using Application.Dtos.Project;
 using Domain.Entities;
 using Infrastructure.Data;
@@ -23,7 +24,7 @@ namespace Infrastructure.Services
             _currentUserService = currentUserService;
         }
 
-        public async Task<ProjectDto> CreateAsync(CreateProjectCommand command)
+        public async Task<Result<ProjectDto>> CreateAsync(CreateProjectCommand command)
         {
             var project = new Project
             {
@@ -36,38 +37,51 @@ namespace Infrastructure.Services
             _context.Projects.Add(project);
             await _context.SaveChangesAsync();
 
-            return ProjectDto.FromEntity(project);
+            return Result<ProjectDto>.Success(ProjectDto.FromEntity(project));
         }
 
-        public async Task<ProjectDto> GetByIdAsync(Guid id)
+        public async Task<Result<ProjectDto>> GetByIdAsync(Guid id)
         {
             var project = await _context.Projects
                 .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted)
-                ?? throw new Exception("Project not found");
+                .FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted);
 
-            return ProjectDto.FromEntity(project);
+            if(project is null)
+            {
+                return Result<ProjectDto>.Failure("Project not found");
+            }
+
+            return Result<ProjectDto>.Success(ProjectDto.FromEntity(project));
         }
 
-        public async Task<List<ProjectDto>> GetAllAsync()
+        public async Task<Result<List<ProjectDto>>> GetAllAsync()
         {
             var userId = _currentUserService.GetCurrentUserId();
             var projects = await _context.Projects
                 .AsNoTracking()
                 .ToListAsync();
 
-            return projects.Select(ProjectDto.FromEntity).ToList();
+            if(projects is null)
+            {
+                return Result<List<ProjectDto>>.Failure("Projects not found");
+            }
+
+            return Result<List<ProjectDto>>.Success(projects.Select(ProjectDto.FromEntity).ToList());
         }
 
-        public async Task<ProjectDto> UpdateAsync(Guid id, UpdateProjectCommand command)
+        public async Task<Result<ProjectDto>> UpdateAsync(Guid id, UpdateProjectCommand command)
         {
             var project = await _context.Projects
-                .FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted)
-                ?? throw new Exception("Project not found");
+                .FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted);
+
+            if(project is null)
+            {
+                return Result<ProjectDto>.Failure("Project not found");
+            }
 
             if (!project.RowVersion.SequenceEqual(command.RowVersion))
             {
-                throw new Exception("There were changes on Project, please refresh and try again.");
+                return Result<ProjectDto>.Failure("There were changes on Project, please refresh and try again.");
             }
 
             project.Name = command.Name;
@@ -84,18 +98,24 @@ namespace Infrastructure.Services
                 throw new Exception("Project update failed due to concurrent changes. Please refresh and try again.");
             }
 
-            return ProjectDto.FromEntity(project);
+            return Result<ProjectDto>.Success(ProjectDto.FromEntity(project));
         }
 
-        public async Task DeleteAsync(Guid id)
+        public async Task<Result<Guid>> DeleteAsync(Guid id)
         {
             var project = await _context.Projects
-                .FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted)
-                ?? throw new Exception("Project not found");
+                .FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted);
+
+            if (project is null)
+            {
+                return Result<Guid>.Failure("Project not found");
+            }
 
             project.IsDeleted = true;
             project.ModifiedBy = _currentUserService.GetCurrentUserId();
             project.ModifiedOn = DateTime.UtcNow;
+
+            return Result<Guid>.Success(id);
         }
     }
 }

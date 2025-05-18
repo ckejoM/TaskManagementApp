@@ -1,4 +1,5 @@
 ﻿using API.Models.Project;
+using Application.Common;
 using Application.Contracts;
 using Application.Dtos.Project;
 using Microsoft.AspNetCore.Authorization;
@@ -19,136 +20,126 @@ namespace API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateProjectRequest request)
         {
-            try
+            var command = new CreateProjectCommand
             {
-                var command = new CreateProjectCommand
-                {
-                    Name = request.Name,
-                    Description = request.Description
-                };
+                Name = request.Name,
+                Description = request.Description
+            };
 
-                var result = await _projectService.CreateAsync(command);
+            var result = await _projectService.CreateAsync(command);
 
-                var response = new ProjectResponse
-                {
-                    Id = result.Id,
-                    Name = result.Name,
-                    Description = result.Description,
-                    CreatedBy = result.CreatedBy,
-                    CreatedOn = result.CreatedOn,
-                    ModifiedBy = result.ModifiedBy,
-                    ModifiedOn = result.ModifiedOn
-                };
-
-                return CreatedAtAction(nameof(GetById), new { id = result.Id }, response);
-            }
-            catch (Exception ex)
+            if (!result.IsSuccess)
             {
-                return BadRequest(new { Error = ex.Message });
+                return BadRequest(new { result.Errors });
             }
+
+            var response = new ProjectResponse
+            {
+                Id = result.Value.Id,
+                Name = result.Value.Name,
+                Description = result.Value.Description,
+                CreatedBy = result.Value.CreatedBy,
+                CreatedOn = result.Value.CreatedOn,
+                ModifiedBy = result.Value.ModifiedBy,
+                ModifiedOn = result.Value.ModifiedOn
+            };
+
+            return CreatedAtAction(nameof(GetById), new { id = result.Value.Id }, response);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            try
-            {
-                var result = await _projectService.GetByIdAsync(id);
+             var result = await _projectService.GetByIdAsync(id);
 
-                var response = new ProjectResponse
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { result.Errors });
+            }
+
+            var response = new ProjectResponse
                 {
-                    Id = result.Id,
-                    Name = result.Name,
-                    Description = result.Description,
-                    CreatedBy = result.CreatedBy,
-                    CreatedOn = result.CreatedOn,
-                    ModifiedBy = result.ModifiedBy,
-                    ModifiedOn = result.ModifiedOn,
-                    RowVersion = result.RowVersion
+                    Id = result.Value.Id,
+                    Name = result.Value.Name,
+                    Description = result.Value.Description,
+                    CreatedBy = result.Value.CreatedBy,
+                    CreatedOn = result.Value.CreatedOn,
+                    ModifiedBy = result.Value.ModifiedBy,
+                    ModifiedOn = result.Value.ModifiedOn,
+                    RowVersion = result.Value.RowVersion
                 };
 
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                return NotFound(new { Error = ex.Message });
-            }
+            return Ok(response);            
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            try
-            {
-                var results = await _projectService.GetAllAsync();
+            var results = await _projectService.GetAllAsync();
 
-                var response = results.Select(r => new ProjectResponse
-                {
-                    Id = r.Id,
-                    Name = r.Name,
-                    Description = r.Description,
-                    CreatedBy = r.CreatedBy,
-                    CreatedOn = r.CreatedOn,
-                    ModifiedBy = r.ModifiedBy,
-                    ModifiedOn = r.ModifiedOn,
-                    RowVersion = r.RowVersion
-                });
-
-                return Ok(response);
-            }
-            catch (Exception ex)
+            if (!results.IsSuccess)
             {
-                return BadRequest(new { Error = ex.Message });
+                return BadRequest(new { results.Errors });
             }
+
+            var response = results.Value.Select(r => new ProjectResponse
+            {
+                Id = r.Id,
+                Name = r.Name,
+                Description = r.Description,
+                CreatedBy = r.CreatedBy,
+                CreatedOn = r.CreatedOn,
+                ModifiedBy = r.ModifiedBy,
+                ModifiedOn = r.ModifiedOn,
+                RowVersion = r.RowVersion
+            });
+
+            return Ok(response);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateProjectRequest request)
         {
-            try
+            var command = new UpdateProjectCommand
             {
-                var command = new UpdateProjectCommand
-                {
-                    Name = request.Name,
-                    Description = request.Description,
-                    RowVersion = request.RowVersion
-                };
+                Name = request.Name,
+                Description = request.Description,
+                RowVersion = request.RowVersion
+            };
 
-                var result = await _projectService.UpdateAsync(id, command);
+            var result = await _projectService.UpdateAsync(id, command);
 
-                var response = new ProjectResponse
-                {
-                    Id = result.Id,
-                    Name = result.Name,
-                    Description = result.Description,
-                    CreatedBy = result.CreatedBy,
-                    CreatedOn = result.CreatedOn,
-                    ModifiedBy = result.ModifiedBy,
-                    ModifiedOn = result.ModifiedOn,
-                    RowVersion = result.RowVersion
-                };
-
-                return Ok(response);
-            }
-            catch (Exception ex)
+            if (!result.IsSuccess)
             {
-                return BadRequest(new { Error = ex.Message });
+                return BadRequest(new { result.Errors });
             }
+
+            var response = new ProjectResponse
+            {
+                Id = result.Value.Id,
+                Name = result.Value.Name,
+                Description = result.Value.Description,
+                CreatedBy = result.Value.CreatedBy,
+                CreatedOn = result.Value.CreatedOn,
+                ModifiedBy = result.Value.ModifiedBy,
+                ModifiedOn = result.Value.ModifiedOn,
+                RowVersion = result.Value.RowVersion
+            };
+
+            return Ok(response);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            try
-            {
-                await _projectService.DeleteAsync(id);
+            var result = await _projectService.DeleteAsync(id);
 
-                return NoContent();
-            }
-            catch (Exception ex)
+            if (!result.IsSuccess)
             {
-                return NotFound(new { Error = ex.Message });
+                return BadRequest(new { result.Errors });
             }
+
+            return NoContent();
         }
     }
 }

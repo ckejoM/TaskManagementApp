@@ -1,4 +1,5 @@
 ﻿using API.Models.Category;
+using Application.Common;
 using Application.Contracts;
 using Application.Dtos.Category;
 using Microsoft.AspNetCore.Authorization;
@@ -19,119 +20,119 @@ namespace API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateCategoryRequest request)
         {
-            try
+            var command = new CreateCategoryCommand
             {
-                var command = new CreateCategoryCommand
-                {
-                    Name = request.Name
-                };
-                var result = await _categoryService.CreateAsync(command);
-                var response = new CategoryResponse
-                {
-                    Id = result.Id,
-                    Name = result.Name,
-                    CreatedBy = result.CreatedBy,
-                    CreatedAt = result.CreatedAt,
-                    ModifiedBy = result.ModifiedBy,
-                    ModifiedAt = result.ModifiedAt
-                };
-                return CreatedAtAction(nameof(GetById), new { id = result.Id }, response);
-            }
-            catch (Exception ex)
+                Name = request.Name
+            };
+
+            var result = await _categoryService.CreateAsync(command);
+
+            if(!result.IsSuccess)
             {
-                return BadRequest(new { Error = ex.Message });
+                return BadRequest(new { result.Errors });
             }
+
+            var response = new CategoryResponse
+            {
+                Id = result.Value.Id,
+                Name = result.Value.Name,
+                CreatedBy = result.Value.CreatedBy,
+                CreatedAt = result.Value.CreatedAt,
+                ModifiedBy = result.Value.ModifiedBy,
+                ModifiedAt = result.Value.ModifiedAt
+            };
+            return CreatedAtAction(nameof(GetById), new { id = result.Value.Id }, response);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            try
+            var result = await _categoryService.GetByIdAsync(id);
+
+            if (!result.IsSuccess)
             {
-                var result = await _categoryService.GetByIdAsync(id);
-                var response = new CategoryResponse
-                {
-                    Id = result.Id,
-                    Name = result.Name,
-                    CreatedBy = result.CreatedBy,
-                    CreatedAt = result.CreatedAt,
-                    ModifiedBy = result.ModifiedBy,
-                    ModifiedAt = result.ModifiedAt,
-                    RowVersion = result.RowVersion
-                };
-                return Ok(response);
+                return BadRequest(new { result.Errors });
             }
-            catch (Exception ex)
+
+            var response = new CategoryResponse
             {
-                return NotFound(new { Error = ex.Message });
-            }
+                Id = result.Value.Id,
+                Name = result.Value.Name,
+                CreatedBy = result.Value.CreatedBy,
+                CreatedAt = result.Value.CreatedAt,
+                ModifiedBy = result.Value.ModifiedBy,
+                ModifiedAt = result.Value.ModifiedAt,
+                RowVersion = result.Value.RowVersion
+            };
+
+            return Ok(response);
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            try
+            var results = await _categoryService.GetAllAsync();
+
+            if (!results.IsSuccess)
             {
-                var results = await _categoryService.GetAllAsync();
-                var response = results.Select(r => new CategoryResponse
-                {
-                    Id = r.Id,
-                    Name = r.Name,
-                    CreatedBy = r.CreatedBy,
-                    CreatedAt = r.CreatedAt,
-                    ModifiedBy = r.ModifiedBy,
-                    ModifiedAt = r.ModifiedAt,
-                    RowVersion = r.RowVersion
-                });
-                return Ok(response);
+                return BadRequest(new { results.Errors });
             }
-            catch (Exception ex)
+
+
+            var response = results.Value.Select(r => new CategoryResponse
             {
-                return BadRequest(new { Error = ex.Message });
-            }
+                Id = r.Id,
+                Name = r.Name,
+                CreatedBy = r.CreatedBy,
+                CreatedAt = r.CreatedAt,
+                ModifiedBy = r.ModifiedBy,
+                ModifiedAt = r.ModifiedAt,
+                RowVersion = r.RowVersion
+            });
+            return Ok(response);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateCategoryRequest request)
         {
-            try
+            var command = new UpdateCategoryCommand
             {
-                var command = new UpdateCategoryCommand
-                {
-                    Name = request.Name,
-                    RowVersion = request.RowVersion
-                };
-                var result = await _categoryService.UpdateAsync(id, command);
-                var response = new CategoryResponse
-                {
-                    Id = result.Id,
-                    Name = result.Name,
-                    CreatedBy = result.CreatedBy,
-                    CreatedAt = result.CreatedAt,
-                    ModifiedBy = result.ModifiedBy,
-                    ModifiedAt = result.ModifiedAt,
-                    RowVersion = result.RowVersion
-                };
-                return Ok(response);
-            }
-            catch (Exception ex)
+                Name = request.Name,
+                RowVersion = request.RowVersion
+            };
+
+            var result = await _categoryService.UpdateAsync(id, command);
+
+            if (!result.IsSuccess)
             {
-                return BadRequest(new { Error = ex.Message });
+                return BadRequest(new { result.Errors });
             }
+
+            var response = new CategoryResponse
+            {
+                Id = result.Value.Id,
+                Name = result.Value.Name,
+                CreatedBy = result.Value.CreatedBy,
+                CreatedAt = result.Value.CreatedAt,
+                ModifiedBy = result.Value.ModifiedBy,
+                ModifiedAt = result.Value.ModifiedAt,
+                RowVersion = result.Value.RowVersion
+            };
+
+            return Ok(response);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            try
+            var result = await _categoryService.DeleteAsync(id);
+
+            if (!result.IsSuccess)
             {
-                await _categoryService.DeleteAsync(id);
-                return NoContent();
+                return BadRequest(new { result.Errors });
             }
-            catch (Exception ex)
-            {
-                return NotFound(new { Error = ex.Message });
-            }
+
+            return NoContent();            
         }
     }
 }
