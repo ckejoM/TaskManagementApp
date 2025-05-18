@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ namespace Domain.Common
         public DateTime? ModifiedOn { get; set; }
         public Guid? ModifiedBy { get; set; }
         public bool IsDeleted { get; set; }
+        [Timestamp]
         public byte[] RowVersion { get; set; }
     }
 }
