@@ -1,6 +1,7 @@
 ﻿using Application.Common;
 using Application.Contracts;
 using Application.Dtos.Project;
+using Application.Validators;
 using Domain.Entities;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -17,11 +18,16 @@ namespace Infrastructure.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IValidatorFactory _validatorFactory;
 
-        public ProjectService(ApplicationDbContext context, ICurrentUserService currentUserService)
+        public ProjectService(
+            ApplicationDbContext context,
+            ICurrentUserService currentUserService,
+            IValidatorFactory validatorFactory)
         {
             _context = context;
             _currentUserService = currentUserService;
+            _validatorFactory = validatorFactory;
         }
 
         public async Task<Result<ProjectDto>> CreateAsync(CreateProjectCommand command)
@@ -71,6 +77,17 @@ namespace Infrastructure.Services
 
         public async Task<Result<ProjectDto>> UpdateAsync(Guid id, UpdateProjectCommand command)
         {
+            var validator = _validatorFactory.GetValidator<UpdateProjectCommand>();
+
+            if (validator is not null)
+            {
+                var validationResult = await validator.ValidateAsync(command);
+                if (!validationResult.IsValid)
+                {
+                    return Result<ProjectDto>.Failure(validationResult.Errors.Select(e => e.ErrorMessage).ToArray());
+                }
+            }
+
             var project = await _context.Projects
                 .FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted);
 

@@ -1,4 +1,6 @@
-﻿namespace Application.Dtos.Task
+﻿using FluentValidation;
+
+namespace Application.Dtos.Task
 {
     public class CreateTaskCommand
     {

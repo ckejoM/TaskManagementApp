@@ -1,6 +1,7 @@
 ﻿using Application.Common;
 using Application.Contracts;
 using Application.Dtos.Category;
+using Application.Validators;
 using Domain.Entities;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -16,11 +17,16 @@ namespace Infrastructure.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IValidatorFactory _validatorFactory;
 
-        public CategoryService(ApplicationDbContext context, ICurrentUserService currentUserService)
+        public CategoryService(
+            ApplicationDbContext context,
+            ICurrentUserService currentUserService,
+            IValidatorFactory validatorFactory)
         {
             _context = context;
             _currentUserService = currentUserService;
+            _validatorFactory = validatorFactory;
         }
 
         public async Task<Result<CategoryDto>> CreateAsync(CreateCategoryCommand command)
@@ -74,6 +80,17 @@ namespace Infrastructure.Services
 
         public async Task<Result<CategoryDto>> UpdateAsync(Guid id, UpdateCategoryCommand command)
         {
+            var validator = _validatorFactory.GetValidator<UpdateCategoryCommand>();
+
+            if (validator is not null)
+            {
+                var validationResult = await validator.ValidateAsync(command);
+                if (!validationResult.IsValid)
+                {
+                    return Result<CategoryDto>.Failure(validationResult.Errors.Select(e => e.ErrorMessage).ToArray());
+                }
+            }
+
             var category = await _context.Categories
                 .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
 

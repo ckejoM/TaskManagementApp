@@ -1,6 +1,7 @@
 ﻿using Application.Common;
 using Application.Contracts;
 using Application.Dtos.Task;
+using Application.Validators;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -15,11 +16,16 @@ namespace Infrastructure.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IValidatorFactory _validatorFactory;
 
-        public TaskService(ICurrentUserService currentUserService, ApplicationDbContext context)
+        public TaskService(
+            ICurrentUserService currentUserService,
+            ApplicationDbContext context, 
+            IValidatorFactory validatorFactory)
         {
             _currentUserService = currentUserService;
             _context = context;
+            _validatorFactory = validatorFactory;
         }
 
         public async Task<Result<TaskDto>> CreateAsync(CreateTaskCommand command)
@@ -106,6 +112,17 @@ namespace Infrastructure.Services
 
         public async Task<Result<TaskDto>> UpdateAsync(Guid id, UpdateTaskCommand command)
         {
+            var validator = _validatorFactory.GetValidator<UpdateTaskCommand>();
+
+            if(validator is not null)
+            {
+                var validationResult = await validator.ValidateAsync(command);
+                if (!validationResult.IsValid)
+                {
+                    return Result<TaskDto>.Failure(validationResult.Errors.Select(e => e.ErrorMessage).ToArray());
+                }
+            }
+
             var task = await _context.Tasks
             .FirstOrDefaultAsync(t => t.Id == id && !t.IsDeleted);
 
