@@ -2,6 +2,7 @@
 using API.Middleware;
 using Application;
 using Infrastructure;
+using Serilog;
 
 namespace API
 {
@@ -14,6 +15,9 @@ namespace API
             builder.Services.AddControllers();
 
             var configuration = builder.Configuration;
+
+            builder.Host.UseSerilog((context, configuration) =>
+                configuration.ReadFrom.Configuration(context.Configuration));
 
             builder.Services
                 .AddApiServices()
@@ -36,6 +40,8 @@ namespace API
                 app.UseSwaggerUI();
             }
 
+            app.UseSerilogRequestLogging();
+            
             app.UseExceptionMiddleware();
 
             app.UseHttpsRedirection();

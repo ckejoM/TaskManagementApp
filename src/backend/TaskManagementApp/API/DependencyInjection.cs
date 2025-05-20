@@ -1,6 +1,7 @@
 ﻿using Application.Validators.Task;
 using Application.Validators;
 using FluentValidation;
+using Serilog;
 
 namespace API
 {
