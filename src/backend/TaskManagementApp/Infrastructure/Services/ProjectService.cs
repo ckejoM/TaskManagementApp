@@ -62,7 +62,6 @@ namespace Infrastructure.Services
 
         public async Task<Result<List<ProjectDto>>> GetAllAsync()
         {
-            throw new Exception();
             var userId = _currentUserService.GetCurrentUserId();
             var projects = await _context.Projects
                 .AsNoTracking()
