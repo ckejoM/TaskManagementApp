@@ -40,10 +40,9 @@ namespace API
                 app.UseSwaggerUI();
             }
 
-            app.UseSerilogRequestLogging();
-            
             app.UseExceptionMiddleware();
-
+            app.UseSerilogRequestLogging();
+            app.UseCors("AllowAngular");
             app.UseHttpsRedirection();
 
             app.UseAuthentication();

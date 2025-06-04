@@ -15,6 +15,16 @@ namespace API
             // Add FluentValidation
             services.AddValidatorsFromAssemblyContaining<UpdateTaskCommandValidator>();
 
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAngular", builder =>
+                {
+                    builder.WithOrigins("http://localhost:4200")
+                           .AllowAnyHeader()
+                           .AllowAnyMethod();
+                });
+            });
+
             return services;
         }
     }
