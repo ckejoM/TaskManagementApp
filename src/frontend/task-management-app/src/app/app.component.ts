@@ -4,6 +4,7 @@ import { AuthService, LoginRequest } from './shared/apiClient';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { ToastService } from './shared/toast.service';
 
 @Component({
   selector: 'app-root',
@@ -14,7 +15,7 @@ import { MatCardModule } from '@angular/material/card';
   providers:[AuthService]
 })
 export class AppComponent {
-  constructor(private authService: AuthService){
+  constructor(private authService: AuthService, private toastService: ToastService){
 
   }
 
@@ -30,5 +31,13 @@ export class AppComponent {
         console.log(data);  
       }
     );
+  }
+
+  testSuccess(): void {
+  this.toastService.showSuccess('Operation completed successfully!');
+  }
+
+  testError(): void {
+    this.toastService.showError('Something went wrong!');
   }
 }
