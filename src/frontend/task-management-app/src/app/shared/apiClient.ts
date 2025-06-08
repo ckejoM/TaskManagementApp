@@ -1283,9 +1283,9 @@ export class CategoryResponse implements ICategoryResponse {
     id?: string;
     name?: string;
     createdBy?: string | undefined;
-    createdAt?: Date;
+    createdAt?: string;
     modifiedBy?: string | undefined;
-    modifiedAt?: Date | undefined;
+    modifiedAt?: string | undefined;
     rowVersion?: string;
 
     constructor(data?: ICategoryResponse) {
@@ -1302,9 +1302,9 @@ export class CategoryResponse implements ICategoryResponse {
             this.id = _data["id"];
             this.name = _data["name"];
             this.createdBy = _data["createdBy"];
-            this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
+            this.createdAt = _data["createdAt"];
             this.modifiedBy = _data["modifiedBy"];
-            this.modifiedAt = _data["modifiedAt"] ? new Date(_data["modifiedAt"].toString()) : <any>undefined;
+            this.modifiedAt = _data["modifiedAt"];
             this.rowVersion = _data["rowVersion"];
         }
     }
@@ -1321,9 +1321,9 @@ export class CategoryResponse implements ICategoryResponse {
         data["id"] = this.id;
         data["name"] = this.name;
         data["createdBy"] = this.createdBy;
-        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
+        data["createdAt"] = this.createdAt;
         data["modifiedBy"] = this.modifiedBy;
-        data["modifiedAt"] = this.modifiedAt ? this.modifiedAt.toISOString() : <any>undefined;
+        data["modifiedAt"] = this.modifiedAt;
         data["rowVersion"] = this.rowVersion;
         return data;
     }
@@ -1333,9 +1333,9 @@ export interface ICategoryResponse {
     id?: string;
     name?: string;
     createdBy?: string | undefined;
-    createdAt?: Date;
+    createdAt?: string;
     modifiedBy?: string | undefined;
-    modifiedAt?: Date | undefined;
+    modifiedAt?: string | undefined;
     rowVersion?: string;
 }
 
@@ -1420,9 +1420,9 @@ export class ProjectResponse implements IProjectResponse {
     name?: string;
     description?: string | undefined;
     createdBy?: string | undefined;
-    createdOn?: Date;
+    createdOn?: string;
     modifiedBy?: string | undefined;
-    modifiedOn?: Date | undefined;
+    modifiedOn?: string | undefined;
     rowVersion?: string;
 
     constructor(data?: IProjectResponse) {
@@ -1440,9 +1440,9 @@ export class ProjectResponse implements IProjectResponse {
             this.name = _data["name"];
             this.description = _data["description"];
             this.createdBy = _data["createdBy"];
-            this.createdOn = _data["createdOn"] ? new Date(_data["createdOn"].toString()) : <any>undefined;
+            this.createdOn = _data["createdOn"];
             this.modifiedBy = _data["modifiedBy"];
-            this.modifiedOn = _data["modifiedOn"] ? new Date(_data["modifiedOn"].toString()) : <any>undefined;
+            this.modifiedOn = _data["modifiedOn"];
             this.rowVersion = _data["rowVersion"];
         }
     }
@@ -1460,9 +1460,9 @@ export class ProjectResponse implements IProjectResponse {
         data["name"] = this.name;
         data["description"] = this.description;
         data["createdBy"] = this.createdBy;
-        data["createdOn"] = this.createdOn ? this.createdOn.toISOString() : <any>undefined;
+        data["createdOn"] = this.createdOn;
         data["modifiedBy"] = this.modifiedBy;
-        data["modifiedOn"] = this.modifiedOn ? this.modifiedOn.toISOString() : <any>undefined;
+        data["modifiedOn"] = this.modifiedOn;
         data["rowVersion"] = this.rowVersion;
         return data;
     }
@@ -1473,9 +1473,9 @@ export interface IProjectResponse {
     name?: string;
     description?: string | undefined;
     createdBy?: string | undefined;
-    createdOn?: Date;
+    createdOn?: string;
     modifiedBy?: string | undefined;
-    modifiedOn?: Date | undefined;
+    modifiedOn?: string | undefined;
     rowVersion?: string;
 }
 
@@ -1570,9 +1570,9 @@ export class TaskResponse implements ITaskResponse {
     projectId?: string;
     categoryId?: string | undefined;
     createdBy?: string | undefined;
-    createdAt?: Date;
+    createdAt?: string;
     modifiedBy?: string | undefined;
-    modifiedAt?: Date | undefined;
+    modifiedAt?: string | undefined;
     rowVersion?: string;
 
     constructor(data?: ITaskResponse) {
@@ -1592,9 +1592,9 @@ export class TaskResponse implements ITaskResponse {
             this.projectId = _data["projectId"];
             this.categoryId = _data["categoryId"];
             this.createdBy = _data["createdBy"];
-            this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
+            this.createdAt = _data["createdAt"];
             this.modifiedBy = _data["modifiedBy"];
-            this.modifiedAt = _data["modifiedAt"] ? new Date(_data["modifiedAt"].toString()) : <any>undefined;
+            this.modifiedAt = _data["modifiedAt"];
             this.rowVersion = _data["rowVersion"];
         }
     }
@@ -1614,9 +1614,9 @@ export class TaskResponse implements ITaskResponse {
         data["projectId"] = this.projectId;
         data["categoryId"] = this.categoryId;
         data["createdBy"] = this.createdBy;
-        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
+        data["createdAt"] = this.createdAt;
         data["modifiedBy"] = this.modifiedBy;
-        data["modifiedAt"] = this.modifiedAt ? this.modifiedAt.toISOString() : <any>undefined;
+        data["modifiedAt"] = this.modifiedAt;
         data["rowVersion"] = this.rowVersion;
         return data;
     }
@@ -1629,9 +1629,9 @@ export interface ITaskResponse {
     projectId?: string;
     categoryId?: string | undefined;
     createdBy?: string | undefined;
-    createdAt?: Date;
+    createdAt?: string;
     modifiedBy?: string | undefined;
-    modifiedAt?: Date | undefined;
+    modifiedAt?: string | undefined;
     rowVersion?: string;
 }
 

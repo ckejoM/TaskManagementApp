@@ -23,29 +23,29 @@ namespace API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
-            try
+            var command = new RegisterCommand
             {
-                var command = new RegisterCommand
-                {
-                    Email = request.Email,
-                    Password = request.Password,
-                    FirstName = request.FirstName,
-                    LastName = request.LastName
-                };
-                var result = await _authService.RegisterAsync(command);
-                var response = new AuthResponse
-                {
-                    Token = result.Token,
-                    UserId = result.UserId,
-                    Email = result.Email
-                };
-                return Ok(response);
-            }
-            catch (Exception ex)
+                Email = request.Email,
+                Password = request.Password,
+                FirstName = request.FirstName,
+                LastName = request.LastName
+            };
+            var result = await _authService.RegisterAsync(command);
+
+            if (!result.IsSuccess)
             {
-                var errorResponse = new ErrorResponse { Errors = [ex.Message] };
+                var errorResponse = new ErrorResponse { Errors = result.Errors };
                 return BadRequest(errorResponse);
             }
+
+            var response = new AuthResponse
+            {
+                Token = result.Value.Token,
+                UserId = result.Value.UserId,
+                Email = result.Value.Email
+            };
+            return Ok(response);
+            
         }
 
         [HttpPost("login")]
@@ -53,27 +53,28 @@ namespace API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            try
+            var command = new LoginCommand
             {
-                var command = new LoginCommand
-                {
-                    Email = request.Email,
-                    Password = request.Password
-                };
-                var result = await _authService.LoginAsync(command);
-                var response = new AuthResponse
-                {
-                    Token = result.Token,
-                    UserId = result.UserId,
-                    Email = result.Email
-                };
-                return Ok(response);
-            }
-            catch (Exception ex)
+                Email = request.Email,
+                Password = request.Password
+            };
+            var result = await _authService.LoginAsync(command);
+
+            if (!result.IsSuccess)
             {
-                var errorResponse = new ErrorResponse { Errors = [ex.Message] };
+                var errorResponse = new ErrorResponse { Errors = result.Errors };
                 return BadRequest(errorResponse);
             }
+
+            var response = new AuthResponse
+            {
+                Token = result.Value.Token,
+                UserId = result.Value.UserId,
+                Email = result.Value.Email
+            };
+
+            return Ok(response);           
+            
         }
     }
 }

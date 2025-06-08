@@ -14,7 +14,7 @@ import { ToastService } from './shared/toast.service';
   styleUrl: './app.component.scss',
   providers:[AuthService]
 })
-export class AppComponent {
+export class AppComponent {   
   constructor(private authService: AuthService, private toastService: ToastService){
 
   }
@@ -27,10 +27,8 @@ export class AppComponent {
     loginRequest.email = this.email;
     loginRequest.password = this.password;
     this.authService.login(loginRequest)
-    .subscribe(data => {    
-        console.log(data);  
-      }
-    );
+    .subscribe({    
+      });
   }
 
   testSuccess(): void {

@@ -1,4 +1,5 @@
-﻿using Application.Contracts;
+﻿using Application.Common;
+using Application.Contracts;
 using Application.Dtos.Auth;
 using Infrastructure.Common.Auth;
 using Infrastructure.Data.Identity;
@@ -31,7 +32,7 @@ namespace Infrastructure.Services
             _userManager = userManager;
         }
 
-        public async Task<AuthResult> RegisterAsync(RegisterCommand command)
+        public async Task<Result<AuthResult>> RegisterAsync(RegisterCommand command)
         {
             var identityUser = new ApplicationUser
             {
@@ -52,25 +53,25 @@ namespace Infrastructure.Services
         }
 
 
-        public async Task<AuthResult> LoginAsync(LoginCommand command)
+        public async Task<Result<AuthResult>> LoginAsync(LoginCommand command)
         {
             var user = _userManager.Users.FirstOrDefault(x => x.Email == command.Email);
             if (user == null)
             {
-                throw new Exception("Invalid email or password");
+                return Result<AuthResult>.Failure("Invalid email or password");
             }
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, command.Password, false);
 
             if (!result.Succeeded)
             {
-                throw new Exception("Invalid email or password");
+                Result<AuthResult>.Failure("Invalid email or password");
             }
 
             return await GenerateAuthResult(user);
         }
 
-        private async Task<AuthResult> GenerateAuthResult(ApplicationUser identityUser)
+        private async Task<Result<AuthResult>> GenerateAuthResult(ApplicationUser identityUser)
         {
             var claims = new List<Claim>
             {
@@ -90,12 +91,12 @@ namespace Infrastructure.Services
                 expires: expiry,
                 signingCredentials: credentials);
 
-            return new AuthResult
+            return Result<AuthResult>.Success(new AuthResult
             {
                 Token = new JwtSecurityTokenHandler().WriteToken(token),
                 UserId = identityUser.Id,
                 Email = identityUser.Email
-            };
+            });
         }
     }
 }

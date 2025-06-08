@@ -18,7 +18,7 @@ export class ToastService {
 
   showError(message: string): void {
     this.snackBar.open(message, 'Close', {
-      duration: 50000,
+      duration: 5000,
       panelClass: ['error-snackbar'],
       verticalPosition: 'top',
       horizontalPosition: 'right'

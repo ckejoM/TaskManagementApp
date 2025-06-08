@@ -1,4 +1,5 @@
-﻿using Application.Dtos.Auth;
+﻿using Application.Common;
+using Application.Dtos.Auth;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace Application.Contracts
 {
     public interface IAuthService
     {
-        Task<AuthResult> RegisterAsync(RegisterCommand command);
-        Task<AuthResult> LoginAsync(LoginCommand command);
+        Task<Result<AuthResult>> RegisterAsync(RegisterCommand command);
+        Task<Result<AuthResult>> LoginAsync(LoginCommand command);
     }
 }
