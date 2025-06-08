@@ -2,7 +2,7 @@ import { HttpErrorResponse, HttpInterceptorFn, HttpResponse } from '@angular/com
    import { inject } from '@angular/core';
    import { catchError, switchMap, tap } from 'rxjs/operators';
    import { throwError, from } from 'rxjs';
-   import { ToastService } from '../toast.service';
+   import { ToastService } from '../services/toast.service';
 
    export const apiInterceptor: HttpInterceptorFn = (req, next) => {
      const toast = inject(ToastService);
