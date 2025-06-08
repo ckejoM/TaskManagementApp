@@ -1,9 +1,12 @@
-﻿using API.Models.Category;
+﻿using API.Models;
+using API.Models.Auth;
+using API.Models.Category;
 using Application.Common;
 using Application.Contracts;
 using Application.Dtos.Category;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace API.Controllers
 {
@@ -18,6 +21,8 @@ namespace API.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(typeof(CategoryResponse), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Create([FromBody] CreateCategoryRequest request)
         {
             var command = new CreateCategoryCommand
@@ -45,13 +50,16 @@ namespace API.Controllers
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(CategoryResponse), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetById(Guid id)
         {
             var result = await _categoryService.GetByIdAsync(id);
 
             if (!result.IsSuccess)
             {
-                return BadRequest(new { result.Errors });
+                var errorResponse = new ErrorResponse { Errors = result.Errors };
+                return BadRequest(errorResponse);
             }
 
             var response = new CategoryResponse
@@ -69,17 +77,19 @@ namespace API.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<CategoryResponse>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetAll()
         {
-            var results = await _categoryService.GetAllAsync();
+            var result = await _categoryService.GetAllAsync();
 
-            if (!results.IsSuccess)
+            if (!result.IsSuccess)
             {
-                return BadRequest(new { results.Errors });
+                var errorResponse = new ErrorResponse { Errors = result.Errors };
+                return BadRequest(errorResponse);
             }
 
-
-            var response = results.Value.Select(r => new CategoryResponse
+            var response = result.Value.Select(r => new CategoryResponse
             {
                 Id = r.Id,
                 Name = r.Name,
@@ -93,6 +103,8 @@ namespace API.Controllers
         }
 
         [HttpPut("{id}")]
+        [ProducesResponseType(typeof(CategoryResponse), (int)HttpStatusCode.OK)] // For 200 OK
+        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)] // For 400 Bad Request
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateCategoryRequest request)
         {
             var command = new UpdateCategoryCommand
@@ -105,7 +117,8 @@ namespace API.Controllers
 
             if (!result.IsSuccess)
             {
-                return BadRequest(new { result.Errors });
+                var errorResponse = new ErrorResponse { Errors = result.Errors };
+                return BadRequest(errorResponse);
             }
 
             var response = new CategoryResponse
@@ -123,13 +136,16 @@ namespace API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Delete(Guid id)
         {
             var result = await _categoryService.DeleteAsync(id);
 
             if (!result.IsSuccess)
             {
-                return BadRequest(new { result.Errors });
+                var errorResponse = new ErrorResponse { Errors = result.Errors };
+                return BadRequest(errorResponse);
             }
 
             return NoContent();            

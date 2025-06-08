@@ -1,9 +1,11 @@
-﻿using API.Models.Project;
+﻿using API.Models;
+using API.Models.Project;
 using Application.Common;
 using Application.Contracts;
 using Application.Dtos.Project;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace API.Controllers
 {
@@ -18,6 +20,8 @@ namespace API.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(typeof(ProjectResponse), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Create([FromBody] CreateProjectRequest request)
         {
             var command = new CreateProjectCommand
@@ -30,7 +34,8 @@ namespace API.Controllers
 
             if (!result.IsSuccess)
             {
-                return BadRequest(new { result.Errors });
+                var errorResponse = new ErrorResponse { Errors = result.Errors };
+                return BadRequest(errorResponse);
             }
 
             var response = new ProjectResponse
@@ -48,13 +53,16 @@ namespace API.Controllers
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(ProjectResponse), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetById(Guid id)
         {
              var result = await _projectService.GetByIdAsync(id);
 
             if (!result.IsSuccess)
             {
-                return BadRequest(new { result.Errors });
+                var errorResponse = new ErrorResponse { Errors = result.Errors };
+                return BadRequest(errorResponse);
             }
 
             var response = new ProjectResponse
@@ -73,16 +81,19 @@ namespace API.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<ProjectResponse>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetAll()
         {
-            var results = await _projectService.GetAllAsync();
+            var result = await _projectService.GetAllAsync();
 
-            if (!results.IsSuccess)
+            if (!result.IsSuccess)
             {
-                return BadRequest(new { results.Errors });
+                var errorResponse = new ErrorResponse { Errors = result.Errors };
+                return BadRequest(errorResponse);
             }
 
-            var response = results.Value.Select(r => new ProjectResponse
+            var response = result.Value.Select(r => new ProjectResponse
             {
                 Id = r.Id,
                 Name = r.Name,
@@ -98,6 +109,8 @@ namespace API.Controllers
         }
 
         [HttpPut("{id}")]
+        [ProducesResponseType(typeof(ProjectResponse), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateProjectRequest request)
         {
             var command = new UpdateProjectCommand
@@ -111,7 +124,8 @@ namespace API.Controllers
 
             if (!result.IsSuccess)
             {
-                return BadRequest(new { result.Errors });
+                var errorResponse = new ErrorResponse { Errors = result.Errors };
+                return BadRequest(errorResponse);
             }
 
             var response = new ProjectResponse
@@ -130,13 +144,16 @@ namespace API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Delete(Guid id)
         {
             var result = await _projectService.DeleteAsync(id);
 
             if (!result.IsSuccess)
             {
-                return BadRequest(new { result.Errors });
+                var errorResponse = new ErrorResponse { Errors = result.Errors };
+                return BadRequest(errorResponse);
             }
 
             return NoContent();

@@ -1,8 +1,11 @@
-﻿using API.Models.Task;
+﻿using API.Models;
+using API.Models.Project;
+using API.Models.Task;
 using Application.Contracts;
 using Application.Dtos.Task;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace API.Controllers
 {
@@ -17,6 +20,8 @@ namespace API.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(typeof(TaskResponse), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Create([FromBody] CreateTaskRequest request)
         {
             var command = new CreateTaskCommand
@@ -30,7 +35,8 @@ namespace API.Controllers
 
             if (!result.IsSuccess)
             {
-                return BadRequest(new { result.Errors });
+                var errorResponse = new ErrorResponse { Errors = result.Errors };
+                return BadRequest(errorResponse);
             }
 
             var resultValue = result.Value;
@@ -53,13 +59,16 @@ namespace API.Controllers
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(TaskResponse), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetById(Guid id)
         {
             var result = await _taskService.GetByIdAsync(id);
 
             if (!result.IsSuccess)
             {
-                return BadRequest(new { result.Errors });
+                var errorResponse = new ErrorResponse { Errors = result.Errors };
+                return BadRequest(errorResponse);
             }
 
             var response = new TaskResponse
@@ -80,13 +89,16 @@ namespace API.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<TaskResponse>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetAll()
         {
             var result = await _taskService.GetAllAsync();
 
             if(!result.IsSuccess)
             {
-                return BadRequest(new { result.Errors });
+                var errorResponse = new ErrorResponse { Errors = result.Errors };
+                return BadRequest(errorResponse);
             }
             
             var response = result.Value.Select(r => new TaskResponse
@@ -107,6 +119,8 @@ namespace API.Controllers
         }
 
         [HttpPut("{id}")]
+        [ProducesResponseType(typeof(TaskResponse), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateTaskRequest request)
         {
             var command = new UpdateTaskCommand
@@ -121,7 +135,8 @@ namespace API.Controllers
 
             if(!result.IsSuccess)
             {
-                return BadRequest(new { result.Errors });
+                var errorResponse = new ErrorResponse { Errors = result.Errors };
+                return BadRequest(errorResponse);
             }
 
             var response = new TaskResponse
@@ -141,13 +156,16 @@ namespace API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Delete(Guid id)
         {
             var result = await _taskService.DeleteAsync(id);
 
             if (!result.IsSuccess)
             {
-                return BadRequest(new { result.Errors });
+                var errorResponse = new ErrorResponse { Errors = result.Errors };
+                return BadRequest(errorResponse);
             }
 
             return NoContent();            

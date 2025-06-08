@@ -12,7 +12,14 @@ namespace API
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers()
+                .AddNewtonsoftJson();
+            builder.Services.AddOpenApiDocument(config =>
+            {
+                config.DocumentName = "v1";
+                config.Title = "Task Management API";
+                config.Version = "v1";
+            });
 
             var configuration = builder.Configuration;
 
@@ -36,7 +43,7 @@ namespace API
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
-                app.UseSwagger();
+                app.UseOpenApi();
                 app.UseSwaggerUI();
             }
 

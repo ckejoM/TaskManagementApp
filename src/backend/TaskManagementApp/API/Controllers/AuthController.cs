@@ -1,7 +1,11 @@
-﻿using API.Models.Auth;
+﻿using API.Models;
+using API.Models.Auth;
+using API.Models.Category;
+using Application.Common;
 using Application.Contracts;
 using Application.Dtos.Auth;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace API.Controllers
 {
@@ -15,6 +19,8 @@ namespace API.Controllers
         }
 
         [HttpPost("register")]
+        [ProducesResponseType(typeof(AuthResponse), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
             try
@@ -37,11 +43,14 @@ namespace API.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { Error = ex.Message });
+                var errorResponse = new ErrorResponse { Errors = [ex.Message] };
+                return BadRequest(errorResponse);
             }
         }
 
         [HttpPost("login")]
+        [ProducesResponseType(typeof(AuthResponse), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
             try
@@ -62,7 +71,8 @@ namespace API.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { Error = ex.Message });
+                var errorResponse = new ErrorResponse { Errors = [ex.Message] };
+                return BadRequest(errorResponse);
             }
         }
     }
