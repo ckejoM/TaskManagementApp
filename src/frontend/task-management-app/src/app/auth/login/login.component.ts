@@ -4,7 +4,7 @@ import { Component } from '@angular/core';
    import { MatCardModule } from '@angular/material/card';
    import { MatFormFieldModule } from '@angular/material/form-field';
    import { MatInputModule } from '@angular/material/input';
-   import { AuthService, LoginRequest } from '../../shared/apiClient';
+   import { AuthService, LoginRequest, TasksService } from '../../shared/apiClient';
 import { StorageService } from '../../shared/services/storageService';
 import { NgIf } from '@angular/common';
 
@@ -28,7 +28,8 @@ import { NgIf } from '@angular/common';
      constructor(
        private fb: FormBuilder,
        private authService: AuthService,
-       private localStorageService: StorageService
+       private localStorageService: StorageService,
+       private taskService: TasksService
      ) {
        this.loginForm = this.fb.group({
          email: ['', [Validators.required, Validators.email]],

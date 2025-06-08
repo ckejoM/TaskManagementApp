@@ -8,11 +8,12 @@ import { API_BASE_URL } from './shared/apiClient';
 
 import { routes } from './app.routes';
 import { apiInterceptor } from './shared/interceptors/api.interceptor';
+import { authInterceptor } from './shared/interceptors/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideHttpClient(withInterceptors([apiInterceptor])),
+    provideHttpClient(withInterceptors([apiInterceptor, authInterceptor])),
     provideRouter(routes),
   {
       provide: API_BASE_URL,
