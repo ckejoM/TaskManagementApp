@@ -84,7 +84,8 @@ namespace Infrastructure.Services
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, identityUser.Id),
-                new Claim(ClaimTypes.Email, identityUser.Email!),
+                new Claim("email", identityUser.Email!),
+                new Claim("fullname", string.Concat(identityUser.FirstName, " ", identityUser.LastName)),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
