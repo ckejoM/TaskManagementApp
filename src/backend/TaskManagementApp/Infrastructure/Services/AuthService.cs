@@ -46,7 +46,15 @@ namespace Infrastructure.Services
 
             if (!result.Succeeded)
             {
-                throw new Exception("Registration failed");
+                var errors = result.Errors.ToList();
+                var errorsMsg = new List<string>();
+
+                foreach(var error in errors)
+                {
+                    errorsMsg.Add(error.Description);
+                }
+
+                return Result<AuthResult>.Failure(errorsMsg.ToArray());
             }
 
             return await GenerateAuthResult(identityUser);

@@ -4,8 +4,6 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { environment } from '../environments/environment';
 import { API_BASE_URL } from './shared/apiClient';
 
-
-
 import { routes } from './app.routes';
 import { apiInterceptor } from './shared/interceptors/api.interceptor';
 import { authInterceptor } from './shared/interceptors/auth.interceptor';
