@@ -4,19 +4,23 @@ import { RegisterComponent } from './auth/register/register.component';
 import { CategoriesComponent } from './category/categories/categories.component';
 import { TasksComponent } from './task/tasks/tasks.component';
 import { ProjectsComponent } from './project/projects/projects.component';
+import { authGuard } from './shared/guards/auth.guard';
 
 export const routes: Routes = [
     {
         path: 'categories',
-        component: CategoriesComponent
+        component: CategoriesComponent,
+        canActivate: [authGuard]
     },
     {
         path: 'tasks',
-        component: TasksComponent
+        component: TasksComponent,
+        canActivate: [authGuard]
     },
     {
         path: 'projects',
-        component: ProjectsComponent
+        component: ProjectsComponent,
+        canActivate: [authGuard]
     },
     {
         path: 'login',
