@@ -1,5 +1,9 @@
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+body { 
+  margin: 0; 
+  font-family: Roboto, "Helvetica Neue", sans-serif; 
+  background-color: #8ebbff;
+}
 
    // Snackbar styles
    .mat-mdc-snack-bar-container.success-snackbar {
@@ -13,3 +17,8 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
      --mat-snack-bar-button-color: white !important;
      --mdc-snackbar-supporting-text-color: white !important;
    }
+
+.container{
+  padding-left: 30px;
+  padding-right: 30px;
+}

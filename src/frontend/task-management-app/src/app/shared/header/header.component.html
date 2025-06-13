@@ -3,15 +3,15 @@
 
     <span class="spacer"></span> 
     <ng-container *ngIf="authService.isLoggedIn(); else unauthenticated">
-        <button mat-button routerLink="/tasks">Tasks</button>
-        <button mat-button routerLink="/projects">Projects</button>
-        <button mat-button routerLink="/categories">Categories</button>
+        <button mat-button routerLink="/tasks" class="whiteText">Tasks</button>
+        <button mat-button routerLink="/projects" class="whiteText">Projects</button>
+        <button mat-button routerLink="/categories" class="whiteText">Categories</button>
 
         <span class="spacer"></span>
-        <button mat-button [matMenuTriggerFor]="userMenu">
+        <button mat-button [matMenuTriggerFor]="userMenu" class="whiteText">
             {{ authService.getUserFullName() || 'User' }} <mat-icon>arrow_drop_down</mat-icon> </button>
 
-        <mat-menu #userMenu="matMenu">
+        <mat-menu #userMenu="matMenu" class="subMenu">
             <button mat-menu-item routerLink="/profile"><mat-icon>account_circle</mat-icon>Profile</button>
             <button mat-menu-item (click)="logout()"><mat-icon>logout</mat-icon>Logout</button>
         </mat-menu>
