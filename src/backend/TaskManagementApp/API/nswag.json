@@ -76,7 +76,7 @@
       "templateDirectory": null,
       "serviceHost": null,
       "serviceSchemes": null,
-      "output": "../../../frontend/task-management-app/src/app/shared/apiClient.ts",
+      "output": "../../../frontend/sakai-ng/src/app/shared/apiClient.ts",
       "newLineBehavior": "Auto"
     }
   }
