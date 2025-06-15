@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
-import { Documentation } from './documentation/documentation';
-import { Crud } from './crud/crud';
-import { Empty } from './empty/empty';
+import { Documentation } from './sakaiThemePages/documentation/documentation';
+import { Crud } from './sakaiThemePages/crud/crud';
+import { Empty } from './sakaiThemePages/empty/empty';
 
 export default [
     { path: 'documentation', component: Documentation },
