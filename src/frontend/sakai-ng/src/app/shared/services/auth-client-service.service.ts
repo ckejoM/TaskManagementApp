@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { StorageService } from './storageService';
+import { Router } from '@angular/router';
+import { ToastService } from './toast.service';
 
 @Injectable({
   providedIn: 'root'
@@ -7,7 +9,9 @@ import { StorageService } from './storageService';
 export class AuthClientService {
 
   constructor(
-    private storageService: StorageService
+    private storageService: StorageService,
+    private router: Router,
+    private toastService: ToastService
   ) { }
 
     isLoggedIn(): boolean {
@@ -42,5 +46,7 @@ export class AuthClientService {
 
   logout(): void {
     this.storageService.remove('token');
+    this.router.navigate(['/auth/login']);
+    this.toastService.showSuccess('You have been logged out.');
   }
 }

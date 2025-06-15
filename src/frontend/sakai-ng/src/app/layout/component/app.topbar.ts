@@ -6,11 +6,15 @@ import { StyleClassModule } from 'primeng/styleclass';
 import { AppConfigurator } from './app.configurator';
 import { LayoutService } from '../service/layout.service';
 import { ToastService } from '../../shared/services/toast.service';
+import { DropdownModule } from 'primeng/dropdown';
+import { ButtonModule } from 'primeng/button';
+import { TieredMenu } from 'primeng/tieredmenu';
+import { AuthClientService } from '../../shared/services/auth-client-service.service';
 
 @Component({
     selector: 'app-topbar',
     standalone: true,
-    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator],
+    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, DropdownModule, ButtonModule, TieredMenu],
     providers: [MessageService],
     template: ` <div class="layout-topbar">
         <div class="layout-topbar-logo-container">
@@ -48,20 +52,13 @@ import { ToastService } from '../../shared/services/toast.service';
                 <i class="pi pi-ellipsis-v"></i>
             </button>
 
-            <div class="layout-topbar-menu hidden lg:block">
+           <div class="layout-topbar-menu hidden lg:block">
                 <div class="layout-topbar-menu-content">
-                    <!-- <button type="button" class="layout-topbar-action">
-                        <i class="pi pi-calendar"></i>
-                        <span>Calendar</span>
+                    <button type="button" pButton (click)="menu.toggle($event)">
+                        <span class="mr-2"> {{ authClientService.getUserFullName() }}</span>
+                        <i class="pi pi-chevron-down"></i>
                     </button>
-                    <button type="button" class="layout-topbar-action">
-                        <i class="pi pi-inbox"></i>
-                        <span>Messages</span>
-                    </button> -->
-                    <button type="button" class="layout-topbar-action">
-                        <i (click)="toggleSuccess()" class="pi pi-user"></i>
-                        <span >Profile</span>
-                    </button>
+                    <p-tieredMenu #menu [model]="profileMenu" [popup]="true"></p-tieredMenu>
                 </div>
             </div>
         </div>
@@ -69,9 +66,28 @@ import { ToastService } from '../../shared/services/toast.service';
 })
 export class AppTopbar {
     
-    constructor(public layoutService: LayoutService, public toastService: ToastService) {}
+    constructor(
+        public layoutService: LayoutService, 
+        public toastService: ToastService, 
+        public authClientService: AuthClientService) {}
 
     items!: MenuItem[];
+    profileMenu: MenuItem[] = [
+        {
+            label: 'Profile',
+            icon: 'pi pi-user',
+            command: () => {
+            // navigate to profile page or perform some action
+            }
+        },
+        {
+            label: 'Logout',
+            icon: 'pi pi-sign-out',
+            command: () => {
+                this.authClientService.logout();
+            }
+        }
+    ];
 
     toggleSuccess(){
         this.toastService.showSuccess('Success Message');

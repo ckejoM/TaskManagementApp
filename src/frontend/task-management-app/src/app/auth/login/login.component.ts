@@ -7,6 +7,7 @@ import { Component } from '@angular/core';
    import { AuthService, LoginRequest, TasksService } from '../../shared/apiClient';
 import { StorageService } from '../../shared/services/storageService';
 import { NgIf } from '@angular/common';
+import { Router } from '@angular/router';
 
    @Component({
      standalone: true,
@@ -29,7 +30,7 @@ import { NgIf } from '@angular/common';
        private fb: FormBuilder,
        private authService: AuthService,
        private localStorageService: StorageService,
-       private taskService: TasksService
+       private router: Router
      ) {
        this.loginForm = this.fb.group({
          email: ['', [Validators.required, Validators.email]],
@@ -43,6 +44,7 @@ import { NgIf } from '@angular/common';
          this.authService.login(request).subscribe({
            next: (response) => {
              this.localStorageService.set('token', response.token);
+             this.router.navigate(['/']);
            },
            error: () => {}
          });

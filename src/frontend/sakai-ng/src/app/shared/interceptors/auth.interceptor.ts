@@ -26,7 +26,7 @@ import { HttpInterceptorFn } from '@angular/common/http';
          if (error.status === 401) {
            localStorageService.remove('token');
            toast.showError('Session expired. Please log in again.');
-           router.navigate(['/login']);
+           router.navigate(['/auth/login']);
          }
          return throwError(() => error);
        })
