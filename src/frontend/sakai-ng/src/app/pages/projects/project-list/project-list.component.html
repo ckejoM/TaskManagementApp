@@ -1,0 +1,37 @@
+<div class="card">
+    <p-table 
+    [value]="projects" 
+    [tableStyle]="{ 'min-width': '60rem' }"
+    [paginator]="true"
+    [rows]="15"
+    [rowsPerPageOptions]="[15, 50, 100]"
+    >
+        <ng-template #caption>
+            <div class="flex items-center justify-between">
+                <span class="text-xl font-bold">Projects</span>
+                <p-button icon="pi pi-plus-circle" rounded raised (click)="openDialog()"/>
+                <p-button icon="pi pi-refresh" rounded raised (click)="getProjects()"/>
+            </div>
+        </ng-template>
+        <ng-template #header>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th></th>
+            </tr>
+        </ng-template>
+        <ng-template #body let-project>
+            <tr>
+                <td>{{ project.name }}</td>
+                <td>{{ project.description }}</td>
+                <td>
+                    <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editProject(project)"></button>
+                    <button pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="deleteProject(project)"></button>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template #footer> In total there are {{ projects ? projects.length : 0 }} Projects. </ng-template>
+    </p-table>
+</div>
+
+<app-project-dialog *ngIf="displayDialog" [projectToEdit]="projectToEdit" (update)="updateProject($event)" (create)="createProject($event)" (cancel)="closeDialog()" />

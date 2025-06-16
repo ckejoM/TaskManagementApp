@@ -1,0 +1,40 @@
+
+<p-dialog maskStyleClass="backdrop-blur-sm" [visible]="true" styleClass="!border-0 !bg-transparent">
+    <ng-template #headless>
+        <div
+            class="flex flex-col px-8 py-8 gap-6 rounded-2xl"
+            style="border-radius: 12px; background-image: radial-gradient(circle at left top, var(--p-primary-400), var(--p-primary-700))"
+        >
+            <div class="inline-flex flex-col gap-2">
+                <label for="name" class="text-primary-50 font-semibold">Name</label>
+                <input pInputText id="name" [(ngModel)]="projectName" class="!bg-white/20 !border-0 !p-4 !text-primary-50 w-80" />
+            </div>
+            <div class="inline-flex flex-col gap-2">
+                <label for="description" class="text-primary-50 font-semibold">Description</label>
+                <input
+                    pInputText
+                    id="description"
+                    class="!bg-white/20 !border-0 !p-4 !text-primary-50 w-80"
+                    type="text"
+                    [(ngModel)]="projectDescription"
+                />
+            </div>
+            <div class="flex items-center gap-4">
+                <p-button
+                    label="Cancel"
+                    (click)="cancelClick()"
+                    [text]="true"
+                    styleClass="!p-4 w-full !text-primary-50 !border !border-white/30 hover:!bg-white/10"
+                    class="w-full"
+                />
+                <p-button
+                    [label]="buttonLabel"
+                    (click)="saveClick()"
+                    [text]="true"
+                    styleClass="!p-4 w-full !text-primary-50 !border !border-white/30 hover:!bg-white/10"
+                    class="w-full"
+                />
+            </div>
+        </div>
+    </ng-template>
+</p-dialog>

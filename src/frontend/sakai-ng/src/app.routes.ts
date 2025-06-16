@@ -16,7 +16,8 @@ export const appRoutes: Routes = [
             { path: '', component: Dashboard },
             { path: 'uikit', loadChildren: () => import('./app/pages/sakaiThemePages/uikit/uikit.routes') },
             { path: 'documentation', component: Documentation },
-            { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') }
+            { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') },
+            { path: 'projects', loadChildren: () => import('./app/pages/projects/project.routes') },
         ]
     },
     { path: 'landing', component: Landing, canActivate: [authGuard] },
